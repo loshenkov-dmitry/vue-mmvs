@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="cart-body">
-      <div class="products" v-if="!loading">
+      <div class="products" v-if="!loading && !error">
         <Product
           v-for="product in products"
           :key="product.id"
@@ -11,7 +11,10 @@
           @changeProductQty="changeProductQty"
         />
       </div>
-      <Loader v-else />
+      <Loader v-else-if="loading && !error" />
+      <div class="error" v-else-if="!loading && error">
+        <h3>Ошибка получения данных</h3>
+      </div>
     </div>
     <aside class="cart-aside">
       <div class="total">
@@ -38,6 +41,7 @@ export default {
   data() {
     return {
       loading: true,
+      error: false,
       cartEmpty: true,
       modalShown: false,
       products: [],
@@ -61,6 +65,10 @@ export default {
             product.price = Math.round(product.price);
             this.loading = false;
           });
+        })
+        .catch((e) => {
+          console.error(e);
+          (this.error = true), (this.loading = false);
         });
     },
 
@@ -150,6 +158,10 @@ img {
   width: 100%;
   margin: 0 auto;
   display: flex;
+}
+
+.error {
+  text-align: center;
 }
 
 .cart-body {
